@@ -33,10 +33,10 @@ class FeatureContext implements Context
     /**
      * @When I search for :arg1
      */
-    public function iSearchForBehat()
+    public function iSearchFor($arg1)
     {
         $client = new GuzzleHttp\Client(['base_uri' => 'https://api.github.com']);
-        $this->response = $client->get('/search/repositories?q=behat');
+        $this->response = $client->get('/search/repositories?q=' . $arg1);
     }
 
     /**
@@ -45,9 +45,8 @@ class FeatureContext implements Context
     public function iGetAResult()
     {
         $response_code = $this->response->getStatusCode();
-        if ($response_code <> 200)
-        {
-            throw new Exception("It didn't work. We expected a 200 response code but a " . $response_code);
+        if ($response_code <> 200) {
+            throw new Exception("It didn't work. We expected a 200 response code but got a " . $response_code);
         }
 
         $data = json_decode($this->response->getBody(), true);
