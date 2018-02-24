@@ -36,7 +36,7 @@ class FeatureContext implements Context
     public function iSearchForBehat()
     {
         $client = new GuzzleHttp\Client(['base_uri' => 'https://api.github.com']);
-        $this->response = $client->get('/search/repositories?q=behat');
+        $this->response = $client->get('/searchXX/repositories?q=behat');
     }
 
     /**
