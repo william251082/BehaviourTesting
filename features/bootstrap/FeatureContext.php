@@ -74,8 +74,7 @@ class FeatureContext implements Context
     {
         $this->client = new GuzzleHttp\Client(
             [
-                'base_uri' => 'https://api.github.com',
-                'auth' => [$this->username, $this->password]
+                'base_uri' => 'https://api.github.com', 'auth' => [$this->username, $this->password]
             ]
         );
         $this->response = $this->client->get('/');
@@ -94,9 +93,9 @@ class FeatureContext implements Context
     }
 
     /**
-     * @Then The results should include a repository name :arg1
+     * @Then The results should include a repository named :arg1
      */
-    public function theResultsShouldIncludeARepositoryName($arg1)
+    public function theResultsShouldIncludeARepositoryNamed($arg1)
     {
         $repositories = $this->getBodyAsJson();
 
@@ -106,7 +105,7 @@ class FeatureContext implements Context
             }
         }
 
-        throw new Exception("Expected to find a repository named '$arg1' but didn't.");
+        throw new Exception("Expected to find a repository called '$arg1' but it doesn't exist.");
     }
 
     /**
@@ -126,7 +125,8 @@ class FeatureContext implements Context
      */
     public function iHaveARepositoryCalled($arg1)
     {
-        throw new PendingException();
+        $this->iRequestAListOfMyRepositories();
+        $this->theResultsShouldIncludeARepositoryNamed($arg1);
     }
 
     /**
@@ -134,7 +134,10 @@ class FeatureContext implements Context
      */
     public function iWatchTheRepository($arg1)
     {
-        throw new PendingException();
+        $watch_url = '/repos/' . $this->username . '/' . $arg1 . '/subscription';
+        $parameters = json_encode(['subscribed' => 'true']);
+
+        $this->client->put($watch_url, ['body' => $parameters]);
     }
 
     /**
@@ -142,7 +145,18 @@ class FeatureContext implements Context
      */
     public function theRepositoryWillListMeAsAWatcher($arg1)
     {
-        throw new PendingException();
+        $watch_url = '/repos/' . $this->username . '/' . $arg1 . '/subscribers';
+        $this->response = $this->client->get($watch_url);
+
+        $subscribers = $this->getBodyAsJson();
+
+        foreach($subscribers as $subscriber) {
+            if ($subscriber['login'] == $this->username) {
+                return true;
+            }
+        }
+
+        throw new Exception("Did not find '{$this->username}' as a watcher as expected.");
     }
 
     /**
@@ -150,9 +164,11 @@ class FeatureContext implements Context
      */
     public function iDeleteTheRepositoryCalled($arg1)
     {
-        throw new PendingException();
-    }
+        $delete = '/repos/' . $this->username . '/' . $arg1;
+        $this->response = $this->client->delete($delete);
 
+        $this->iExpectAResponseCode(204);
+    }
 
     protected function getBodyAsJson()
     {
