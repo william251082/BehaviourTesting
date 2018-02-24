@@ -10,6 +10,9 @@ use Behat\Gherkin\Node\TableNode;
 class FeatureContext implements Context
 {
     protected $response = null;
+    protected $username = null;
+    protected $password = null;
+    protected $client   = null;
 
     /**
      * Initializes context.
@@ -17,9 +20,12 @@ class FeatureContext implements Context
      * Every scenario gets its own context instance.
      * You can also pass arbitrary arguments to the
      * context constructor through behat.yml.
+     * @param array $parameters
      */
-    public function __construct()
+    public function __construct($github_username, $github_password)
     {
+        $this->username = $github_username;
+        $this->password = $github_password;
     }
 
     /**
@@ -59,5 +65,39 @@ class FeatureContext implements Context
         if ($data['total_count'] < $arg1) {
             throw new Exception("We expected at least $arg1 results but found: " . $data['total_count']);
         }
+    }
+
+    /**
+     * @Given I am an authenticated user
+     */
+    public function iAmAnAuthenticatedUser()
+    {
+        $client = new GuzzleHttp\Client(
+            [
+                'base_uri' => 'https://api.github.com',
+                'auth' => [$this->username, $this->password]
+            ]
+        );
+        $response = $client->get('/');
+
+        if (200 != $response->getStatusCode()) {
+            throw new Exception("Authentication didn't work!");
+        }
+    }
+
+    /**
+     * @When I request a list of my repositories
+     */
+    public function iRequestAListOfMyRepositories()
+    {
+        throw new Exception();
+    }
+
+    /**
+     * @Then The results should include a repostory name :arg1
+     */
+    public function theResultsShouldIncludeARepostoryName($arg1)
+    {
+        throw new Exception();
     }
 }
