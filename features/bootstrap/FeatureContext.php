@@ -40,18 +40,24 @@ class FeatureContext implements Context
     }
 
     /**
-     * @Then I get a result
+     * @Then I expect a :arg1 response code
      */
-    public function iGetAResult()
+    public function iExpectAResponseCode($arg1)
     {
         $response_code = $this->response->getStatusCode();
-        if ($response_code <> 200) {
-            throw new Exception("It didn't work. We expected a 200 response code but got a " . $response_code);
+        if ($response_code <> $arg1) {
+            throw new Exception("It didn't work. We expected a $arg1 response code but got a " . $response_code);
         }
+    }
 
+    /**
+     * @Then I expect at least :arg1 result
+     */
+    public function iExpectAtLeastResult($arg1)
+    {
         $data = json_decode($this->response->getBody(), true);
-        if ($data['total_count'] == 0) {
-            throw new Exception("We found zero results!");
+        if ($data['total_count'] < $arg1) {
+            throw new Exception("We expected at least $arg1 results but found: " . $data['total_count']);
         }
     }
 }
