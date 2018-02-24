@@ -109,6 +109,51 @@ class FeatureContext implements Context
         throw new Exception("Expected to find a repository named '$arg1' but didn't.");
     }
 
+    /**
+     * @When I create the :arg1 repository
+     */
+    public function iCreateTheRepository($arg1)
+    {
+        $parameters = json_encode(['name' => $arg1]);
+
+        $this->client->post('/user/repos', ['body' => $parameters]);
+
+        $this->iExpectAResponseCode(200);
+    }
+
+    /**
+     * @Given I have a repository called :arg1
+     */
+    public function iHaveARepositoryCalled($arg1)
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @When I watch the :arg1 repository
+     */
+    public function iWatchTheRepository($arg1)
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Then The :arg1 repository will list me as a watcher
+     */
+    public function theRepositoryWillListMeAsAWatcher($arg1)
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Then I delete the repository called :arg1
+     */
+    public function iDeleteTheRepositoryCalled($arg1)
+    {
+        throw new PendingException();
+    }
+
+
     protected function getBodyAsJson()
     {
         return json_decode($this->response->getBody(), true);
