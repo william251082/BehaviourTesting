@@ -36,7 +36,7 @@ class FeatureContext implements Context
     public function iSearchForBehat()
     {
         $client = new GuzzleHttp\Client(['base_uri' => 'https://api.github.com']);
-        $this->response = $client->get('/searchXX/repositories?q=behat');
+        $this->response = $client->get('/search/repositories?q=behat');
     }
 
     /**
@@ -48,6 +48,11 @@ class FeatureContext implements Context
         if ($response_code <> 200)
         {
             throw new Exception("It didn't work. We expected a 200 response code but a " . $response_code);
+        }
+
+        $data = json_decode($this->response->getBody(), true);
+        if ($data['total_count'] == 0) {
+            throw new Exception("We found zero results!");
         }
     }
 }
