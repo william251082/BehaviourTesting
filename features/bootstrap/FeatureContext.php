@@ -9,6 +9,8 @@ use Behat\Gherkin\Node\TableNode;
  */
 class FeatureContext implements Context
 {
+    protected $response = null;
+
     /**
      * Initializes context.
      *
@@ -29,11 +31,12 @@ class FeatureContext implements Context
     }
 
     /**
-     * @When I search for behat
+     * @When I search for :arg1
      */
     public function iSearchForBehat()
     {
-        return false;
+        $client = new GuzzleHttp\Client(['base_uri' => 'https://api.github.com']);
+        $this->response = $client->get('/search/repositories?q=behat');
     }
 
     /**
@@ -41,6 +44,10 @@ class FeatureContext implements Context
      */
     public function iGetAResult()
     {
-        throw new Exception();
+        $response_code = $this->response->getStatusCode();
+        if ($response_code <> 200)
+        {
+            throw new Exception("It didn't work. We expected a 200 response code but a " . $response_code);
+        }
     }
 }
