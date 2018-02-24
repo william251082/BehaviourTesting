@@ -61,7 +61,7 @@ class FeatureContext implements Context
      */
     public function iExpectAtLeastResult($arg1)
     {
-        $data = json_decode($this->response->getBody(), true);
+        $data = $this->getBodyAsJson();
         if ($data['total_count'] < $arg1) {
             throw new Exception("We expected at least $arg1 results but found: " . $data['total_count']);
         }
@@ -78,11 +78,9 @@ class FeatureContext implements Context
                 'auth' => [$this->username, $this->password]
             ]
         );
-        $response = $this->client->get('/');
+        $this->response = $this->client->get('/');
 
-        if (200 != $response->getStatusCode()) {
-            throw new Exception("Authentication didn't work!");
-        }
+        $this->iExpectAResponseCode(200);
     }
 
     /**
@@ -92,9 +90,7 @@ class FeatureContext implements Context
     {
         $this->response = $this->client->get('/user/repos');
 
-        if (200 != $this->response->getStatusCode()) {
-            throw new Exception("Authentication didn't work!");
-        }
+        $this->iExpectAResponseCode(200);
     }
 
     /**
@@ -102,7 +98,7 @@ class FeatureContext implements Context
      */
     public function theResultsShouldIncludeARepositoryName($arg1)
     {
-        $repositories = json_decode($this->response->getBody(), true);
+        $repositories = $this->getBodyAsJson();
 
         foreach($repositories as $repository) {
             if ($repository['name'] == $arg1) {
@@ -111,5 +107,10 @@ class FeatureContext implements Context
         }
 
         throw new Exception("Expected to find a repository named '$arg1' but didn't.");
+    }
+
+    protected function getBodyAsJson()
+    {
+        return json_decode($this->response->getBody(), true);
     }
 }
